@@ -10,6 +10,6 @@ GITHUB_BRANCH = "main"
 WORDS_PATH = "words.json"
 # Comma-separated Telegram user IDs allowed to use the bot.
 # Leave empty for first deploy: message the bot and it will tell you your ID.
-ALLOWED_USER_IDS = "417641946"
+ALLOWED_USER_IDS = "417641946,223112715"
 # Claude model used for enrichment
 CLAUDE_MODEL = "claude-haiku-4-5"
