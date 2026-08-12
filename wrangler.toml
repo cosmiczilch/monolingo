@@ -5,7 +5,7 @@ compatibility_date = "2026-08-01"
 # Non-secret config. Secrets are set via `wrangler secret put` (see README).
 [vars]
 # GitHub repo that holds words.json, in "owner/repo" form
-GITHUB_REPO = "YOUR_GITHUB_USERNAME/monolingo"
+GITHUB_REPO = "cosmiczilch/monolingo"
 GITHUB_BRANCH = "main"
 WORDS_PATH = "words.json"
 # Comma-separated Telegram user IDs allowed to use the bot.
