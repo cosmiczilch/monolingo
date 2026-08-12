@@ -1,0 +1,14 @@
+{
+  "name": "monolingo-bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Telegram bot that captures fancy words, enriches them with Claude, and commits them to words.json",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
