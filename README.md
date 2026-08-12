@@ -13,7 +13,7 @@ You already have Cloudflare, Anthropic, and GitHub accounts, so this is ~15 minu
 ### 1. Create the Telegram bot
 
 1. In Telegram, message [@BotFather](https://t.me/BotFather) → `/newbot`.
-2. Pick a display name (e.g. "Monolingo") and a username (e.g. `monolingo_avi_bot`).
+2. Pick a display name (e.g. "Monolingo") and a username (ours is `monol1ngo_bot`).
 3. Copy the **bot token** it gives you.
 4. Also run `/setprivacy` → select your bot → **Disable**. (Required for the
    bot to see non-command messages in a group chat.)
