@@ -99,7 +99,6 @@
   <div class="card">
     <div class="stat-row">
       <div class="stat"><b id="s-total">–</b><span>words</span></div>
-      <div class="stat"><b id="s-due">–</b><span>due now</span></div>
       <div class="stat"><b id="s-new">–</b><span>new</span></div>
     </div>
     <button onclick="startStudy()" id="quick-btn">Quick exercise · 5 words</button>
@@ -227,12 +226,17 @@ function applyGrade(word, g) {
 function buildQueue(limit) {
   const due = words.filter((w) => isDue(w.word));
   const fresh = words.filter((w) => isNew(w.word));
-  queue = [...due, ...fresh].slice(0, limit);
-  // top up with random already-learned words so there's always a session
-  if (queue.length < limit) {
-    const filler = words.filter((w) => cardState(w.word) && !isDue(w.word));
-    shuffle(filler);
-    queue = queue.concat(filler.slice(0, limit - queue.length));
+  const filler = words.filter((w) => cardState(w.word) && !isDue(w.word));
+  shuffle(filler);
+  // due first, then new, then random already-learned — no word twice
+  const seen = new Set();
+  queue = [];
+  for (const w of [...due, ...fresh, ...filler]) {
+    if (queue.length >= limit) break;
+    const k = w.word.toLowerCase();
+    if (seen.has(k)) continue;
+    seen.add(k);
+    queue.push(w);
   }
 }
 function shuffle(a) {
@@ -286,7 +290,6 @@ function grade(g) {
 /* ---------- home / browse ---------- */
 function refreshStats() {
   $("s-total").textContent = words.length;
-  $("s-due").textContent = words.filter((w) => isDue(w.word)).length;
   $("s-new").textContent = words.filter((w) => isNew(w.word)).length;
   $("quick-btn").disabled = words.length === 0;
   $("quick-btn").textContent = words.length === 0
