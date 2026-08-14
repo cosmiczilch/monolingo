@@ -69,9 +69,17 @@
     width: 100%; font: inherit; padding: 12px 14px; border-radius: 12px;
     border: 1px solid var(--border); background: var(--card); color: var(--text); margin-bottom: 12px;
   }
-  .word-item { padding: 14px 4px; border-bottom: 1px solid var(--border); }
-  .word-item b { display: block; margin-bottom: 2px; }
-  .word-item small { color: var(--muted); line-height: 1.4; }
+  .word-item { padding: 14px 4px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .word-item b { display: block; }
+  .word-detail { padding-top: 10px; }
+  .word-detail .def { font-size: 15px; line-height: 1.5; margin-bottom: 8px; }
+  .word-detail .syn { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+  .word-detail .ex { font-style: italic; color: var(--muted); font-size: 13px; line-height: 1.5; margin-bottom: 4px; }
+  .word-detail .meta { font-size: 11px; color: var(--muted); margin-top: 8px; }
+  .sort-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .sort-row button { width: auto; flex: 1; padding: 9px; font-size: 13px;
+    background: var(--card); color: var(--muted); border: 1px solid var(--border); }
+  .sort-row button.active { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
   .pill { display: inline-block; font-size: 11px; color: var(--accent); background: var(--accent-soft);
     border-radius: 99px; padding: 2px 8px; margin-left: 6px; vertical-align: middle; }
   input.key { width: 100%; font: inherit; padding: 12px 14px; border-radius: 12px;
@@ -145,6 +153,10 @@
 <div class="view" id="v-browse">
   <span class="back-link" onclick="show('v-home')">‹ Back</span>
   <input id="search" placeholder="search words…" oninput="renderBrowse()">
+  <div class="sort-row">
+    <button id="sort-newest" onclick="setSort('newest')">Newest first</button>
+    <button id="sort-rating" onclick="setSort('rating')">By rating</button>
+  </div>
   <div id="word-list"></div>
 </div>
 
@@ -301,21 +313,48 @@ function refreshStats() {
     ? "No words yet — add some via the bot"
     : "Quick exercise · " + Math.min(SESSION_SIZE, words.length) + " words";
 }
+let browseSort = "newest", openKey = null, browseList = [];
+function setSort(s) {
+  browseSort = s;
+  renderBrowse();
+}
+// lower = weaker knowledge; unrated words sort last
+function ratingKey(w) {
+  const s = cardState(w.word);
+  return s ? s.ease + s.interval / 1000 : 9999;
+}
 function renderBrowse() {
+  $("sort-newest").classList.toggle("active", browseSort === "newest");
+  $("sort-rating").classList.toggle("active", browseSort === "rating");
   const q = ($("search").value || "").toLowerCase();
-  const list = words
-    .filter((w) => !q || w.word.toLowerCase().includes(q) || w.definition.toLowerCase().includes(q))
-    .slice()
-    .reverse(); // newest first
+  let list = words.filter(
+    (w) => !q || w.word.toLowerCase().includes(q) || w.definition.toLowerCase().includes(q)
+  );
+  list = browseSort === "newest"
+    ? list.slice().reverse()
+    : list.slice().sort((a, b) => ratingKey(a) - ratingKey(b));
+  browseList = list;
   $("word-list").innerHTML = list
-    .map((w) => {
+    .map((w, i) => {
       const s = cardState(w.word);
       const pill = !s ? '<span class="pill">new</span>'
         : s.due <= now() ? '<span class="pill">due</span>' : "";
-      return `<div class="word-item"><b>${esc(w.word)}${pill}</b>` +
-        `<small>${esc(w.definition)}</small></div>`;
+      const open = w.word === openKey;
+      const syns = (w.synonyms || []).join(", ");
+      const exs = (w.examples || []).map((e) => `<div class="ex">“${esc(e)}”</div>`).join("");
+      const detail = open
+        ? `<div class="word-detail"><div class="def">${esc(w.definition)}</div>` +
+          (syns ? `<div class="syn">≈ ${esc(syns)}</div>` : "") + exs +
+          `<div class="meta">added by ${esc(w.added_by || "?")} · ${esc(w.added_on || "")}</div></div>`
+        : "";
+      return `<div class="word-item" onclick="toggleItem(${i})"><b>${esc(w.word)}${pill}</b>${detail}</div>`;
     })
     .join("") || '<p class="hint">no matches</p>';
+}
+function toggleItem(i) {
+  const k = browseList[i].word;
+  openKey = openKey === k ? null : k;
+  renderBrowse();
 }
 function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
