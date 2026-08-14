@@ -57,9 +57,10 @@
   #back .ex { font-style: italic; color: var(--muted); font-size: 14px; line-height: 1.5; margin-bottom: 6px; }
   #back .meta { font-size: 12px; color: var(--muted); margin-top: 12px; }
   .grades { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .grades button { padding: 12px 4px; font-size: 14px; }
+  .grades button { padding: 9px 4px; font-size: 13px; opacity: 0.85; }
   .g-again { background: var(--red); } .g-hard { background: var(--orange); }
   .g-good { background: var(--green); } .g-easy { background: var(--blue); }
+  #next-btn { font-size: 17px; padding: 16px; }
   .progress { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 10px; }
   /* browse */
   #search {
@@ -114,11 +115,15 @@
     <div id="front-word"></div>
     <div id="back" hidden></div>
   </div>
-  <div class="grades" id="grades" hidden>
-    <button class="g-again" onclick="grade(0)">Again</button>
-    <button class="g-hard" onclick="grade(3)">Hard</button>
-    <button class="g-good" onclick="grade(4)">Good</button>
-    <button class="g-easy" onclick="grade(5)">Easy</button>
+  <div id="answer-actions" hidden>
+    <button id="next-btn" onclick="grade(4)">Next</button>
+    <p class="hint" style="text-align:center; margin:14px 0 6px">or rate how well you knew it:</p>
+    <div class="grades">
+      <button class="g-again" onclick="grade(0)">Again</button>
+      <button class="g-hard" onclick="grade(3)">Hard</button>
+      <button class="g-good" onclick="grade(4)">Good</button>
+      <button class="g-easy" onclick="grade(5)">Easy</button>
+    </div>
   </div>
   <p class="hint" id="tap-hint" style="text-align:center">tap the card to reveal</p>
 </div>
@@ -246,7 +251,7 @@ function nextCard() {
   $("progress").textContent = queue.length + " remaining";
   $("front-word").textContent = current.word;
   $("back").hidden = true;
-  $("grades").hidden = true;
+  $("answer-actions").hidden = true;
   $("tap-hint").hidden = false;
   renderBack(current);
 }
@@ -261,7 +266,7 @@ function renderBack(w) {
 function reveal() {
   if (!$("back").hidden) return;
   $("back").hidden = false;
-  $("grades").hidden = false;
+  $("answer-actions").hidden = false;
   $("tap-hint").hidden = true;
 }
 function grade(g) {
