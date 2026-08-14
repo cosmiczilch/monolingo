@@ -103,6 +103,19 @@ The raw file is publicly fetchable (if the repo is public) at
 the API a future flashcard app can read directly. If the repo is private, the
 app will need a read-only token.
 
+## Flashcard PWA
+
+The same Worker serves a flashcard trainer at the root URL
+(`https://monolingo-bot.<subdomain>.workers.dev`). It fetches the live word
+list via `GET /api/words?key=<APP_KEY>` and schedules reviews with an SM-2
+spaced-repetition algorithm. Review progress is stored per device
+(localStorage) — the shared list stays clean.
+
+Setup: `npx wrangler secret put APP_KEY` (invent a team key, share it with
+friends), deploy, then open the URL on your phone, enter the key once, and
+add to home screen (Safari: Share → Add to Home Screen; Chrome: Install).
+Works offline using the last-synced list.
+
 ## Costs
 
 Effectively zero at two-person scale: Cloudflare Workers free tier (100k

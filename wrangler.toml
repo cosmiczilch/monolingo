@@ -13,3 +13,7 @@ WORDS_PATH = "words.json"
 ALLOWED_USER_IDS = "417641946,223112715,8330024917"
 # Claude model used for enrichment
 CLAUDE_MODEL = "claude-haiku-4-5"
+
+# Flashcard PWA static files, served from the same Worker
+[assets]
+directory = "./public"

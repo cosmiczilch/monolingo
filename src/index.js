@@ -8,6 +8,20 @@
 
 export default {
   async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+
+    // Read API for the flashcard PWA
+    if (request.method === "GET" && url.pathname === "/api/words") {
+      if (!env.APP_KEY) {
+        return jsonResponse({ error: "APP_KEY not configured" }, 503);
+      }
+      if (url.searchParams.get("key") !== env.APP_KEY) {
+        return jsonResponse({ error: "invalid key" }, 401);
+      }
+      const { words } = await readWords(env);
+      return jsonResponse({ words, count: words.length });
+    }
+
     if (request.method !== "POST") {
       return new Response("monolingo bot is running", { status: 200 });
     }
@@ -201,22 +215,21 @@ function ghHeaders(env) {
   };
 }
 
-async function appendWord(entry, env) {
+async function readWords(env) {
   const url =
     `https://api.github.com/repos/${env.GITHUB_REPO}/contents/` +
     `${env.WORDS_PATH}?ref=${env.GITHUB_BRANCH}`;
-
-  // Fetch current file (may not exist yet)
-  let words = [];
-  let sha;
   const getResp = await fetch(url, { headers: ghHeaders(env) });
   if (getResp.ok) {
     const file = await getResp.json();
-    sha = file.sha;
-    words = JSON.parse(base64Decode(file.content));
-  } else if (getResp.status !== 404) {
-    throw new Error(`GitHub read error ${getResp.status}: ${await getResp.text()}`);
+    return { words: JSON.parse(base64Decode(file.content)), sha: file.sha };
   }
+  if (getResp.status === 404) return { words: [], sha: undefined };
+  throw new Error(`GitHub read error ${getResp.status}: ${await getResp.text()}`);
+}
+
+async function appendWord(entry, env) {
+  const { words, sha } = await readWords(env);
 
   // Duplicate check (case-insensitive)
   const dup = words.find(
@@ -273,6 +286,13 @@ async function reportError(chatId, err, env) {
     ? escapeHtml(err.message)
     : "Something went wrong saving that word — try again in a minute.";
   await sendMessage(chatId, msg, env).catch(() => {});
+}
+
+function jsonResponse(obj, status = 200) {
+  return new Response(JSON.stringify(obj), {
+    status,
+    headers: { "content-type": "application/json", "cache-control": "no-store" },
+  });
 }
 
 function escapeHtml(s) {

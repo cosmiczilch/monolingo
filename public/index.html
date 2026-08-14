@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Monolingo</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="theme-color" content="#4a3aff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+  :root {
+    --bg: #f6f5fb; --card: #ffffff; --text: #1c1b29; --muted: #6b6880;
+    --accent: #4a3aff; --accent-soft: #e9e6ff; --border: #e3e1ee;
+    --red: #d94f4f; --orange: #d98a2b; --green: #3f9d63; --blue: #3a7bd5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14131c; --card: #201f2c; --text: #eceaf6; --muted: #9794ad;
+      --accent: #8c80ff; --accent-soft: #2c2843; --border: #322f45;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh; padding: env(safe-area-inset-top) 16px calc(24px + env(safe-area-inset-bottom));
+    max-width: 560px; margin: 0 auto;
+  }
+  header { display: flex; align-items: baseline; justify-content: space-between; padding: 20px 4px 16px; }
+  h1 { font-size: 22px; letter-spacing: -0.3px; }
+  h1 span { color: var(--accent); }
+  #status { font-size: 12px; color: var(--muted); }
+  .view { display: none; }
+  .view.active { display: block; }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 20px; margin-bottom: 12px;
+  }
+  button {
+    font: inherit; border: none; border-radius: 12px; padding: 14px 18px;
+    background: var(--accent); color: #fff; font-weight: 600; cursor: pointer;
+    width: 100%;
+  }
+  button.secondary { background: var(--accent-soft); color: var(--accent); }
+  button:active { transform: scale(0.98); }
+  .stat-row { display: flex; gap: 12px; margin-bottom: 12px; }
+  .stat { flex: 1; text-align: center; }
+  .stat b { display: block; font-size: 28px; }
+  .stat span { font-size: 12px; color: var(--muted); }
+  /* study */
+  #front-word { font-size: 34px; font-weight: 700; text-align: center; padding: 40px 0; letter-spacing: -0.5px; }
+  #back { border-top: 1px solid var(--border); padding-top: 16px; }
+  #back .def { font-size: 17px; line-height: 1.5; margin-bottom: 12px; }
+  #back .syn { color: var(--muted); font-size: 14px; margin-bottom: 12px; }
+  #back .ex { font-style: italic; color: var(--muted); font-size: 14px; line-height: 1.5; margin-bottom: 6px; }
+  #back .meta { font-size: 12px; color: var(--muted); margin-top: 12px; }
+  .grades { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .grades button { padding: 12px 4px; font-size: 14px; }
+  .g-again { background: var(--red); } .g-hard { background: var(--orange); }
+  .g-good { background: var(--green); } .g-easy { background: var(--blue); }
+  .progress { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 10px; }
+  /* browse */
+  #search {
+    width: 100%; font: inherit; padding: 12px 14px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--card); color: var(--text); margin-bottom: 12px;
+  }
+  .word-item { padding: 14px 4px; border-bottom: 1px solid var(--border); }
+  .word-item b { display: block; margin-bottom: 2px; }
+  .word-item small { color: var(--muted); line-height: 1.4; }
+  .pill { display: inline-block; font-size: 11px; color: var(--accent); background: var(--accent-soft);
+    border-radius: 99px; padding: 2px 8px; margin-left: 6px; vertical-align: middle; }
+  input.key { width: 100%; font: inherit; padding: 12px 14px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--card); color: var(--text); margin: 12px 0; }
+  .hint { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .back-link { display: inline-block; margin-bottom: 12px; color: var(--accent);
+    font-size: 14px; font-weight: 600; cursor: pointer; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Mono<span>lingo</span></h1>
+  <div id="status"></div>
+</header>
+
+<!-- key setup -->
+<div class="view" id="v-key">
+  <div class="card">
+    <p class="hint">Enter the team key to connect to your word list. You only do this once per device.</p>
+    <input class="key" id="key-input" type="password" placeholder="team key" autocomplete="off">
+    <button onclick="saveKey()">Connect</button>
+  </div>
+</div>
+
+<!-- home -->
+<div class="view" id="v-home">
+  <div class="card">
+    <div class="stat-row">
+      <div class="stat"><b id="s-total">–</b><span>words</span></div>
+      <div class="stat"><b id="s-due">–</b><span>due now</span></div>
+      <div class="stat"><b id="s-new">–</b><span>new</span></div>
+    </div>
+    <button onclick="startStudy()" id="study-btn">Study</button>
+  </div>
+  <button class="secondary" onclick="show('v-browse'); renderBrowse()">Browse all words</button>
+</div>
+
+<!-- study -->
+<div class="view" id="v-study">
+  <span class="back-link" onclick="show('v-home'); refreshStats()">‹ Done for now</span>
+  <div class="progress" id="progress"></div>
+  <div class="card" id="study-card" onclick="reveal()">
+    <div id="front-word"></div>
+    <div id="back" hidden></div>
+  </div>
+  <div class="grades" id="grades" hidden>
+    <button class="g-again" onclick="grade(0)">Again</button>
+    <button class="g-hard" onclick="grade(3)">Hard</button>
+    <button class="g-good" onclick="grade(4)">Good</button>
+    <button class="g-easy" onclick="grade(5)">Easy</button>
+  </div>
+  <p class="hint" id="tap-hint" style="text-align:center">tap the card to reveal</p>
+</div>
+
+<!-- session done -->
+<div class="view" id="v-done">
+  <div class="card" style="text-align:center">
+    <div style="font-size:40px; margin-bottom:8px">🎉</div>
+    <p style="margin-bottom:16px">All caught up! Reviewed <b id="done-count">0</b> cards.</p>
+    <button class="secondary" onclick="show('v-home'); refreshStats()">Back home</button>
+  </div>
+</div>
+
+<!-- browse -->
+<div class="view" id="v-browse">
+  <span class="back-link" onclick="show('v-home')">‹ Back</span>
+  <input id="search" placeholder="search words…" oninput="renderBrowse()">
+  <div id="word-list"></div>
+</div>
+
+<script>
+"use strict";
+const LS = { key: "ml_key", srs: "ml_srs", words: "ml_words" };
+let words = [], srs = {}, queue = [], current = null, reviewed = 0;
+
+const $ = (id) => document.getElementById(id);
+const now = () => Date.now();
+const DAY = 86400000;
+
+function show(id) {
+  document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
+  $(id).classList.add("active");
+}
+
+function saveKey() {
+  const k = $("key-input").value.trim();
+  if (!k) return;
+  localStorage.setItem(LS.key, k);
+  init();
+}
+
+async function loadWords() {
+  const key = localStorage.getItem(LS.key);
+  try {
+    const resp = await fetch("/api/words?key=" + encodeURIComponent(key));
+    if (resp.status === 401) {
+      localStorage.removeItem(LS.key);
+      show("v-key");
+      return false;
+    }
+    if (!resp.ok) throw new Error("http " + resp.status);
+    const data = await resp.json();
+    words = data.words;
+    localStorage.setItem(LS.words, JSON.stringify(words));
+    $("status").textContent = "synced ✓";
+    return true;
+  } catch (e) {
+    const cached = localStorage.getItem(LS.words);
+    if (cached) {
+      words = JSON.parse(cached);
+      $("status").textContent = "offline — using cached list";
+      return true;
+    }
+    $("status").textContent = "couldn't load words";
+    return false;
+  }
+}
+
+/* ---------- SM-2 ---------- */
+function cardState(word) {
+  return srs[word] || null;
+}
+function isDue(word) {
+  const s = cardState(word);
+  return s && s.due <= now();
+}
+function isNew(word) {
+  return !cardState(word);
+}
+function applyGrade(word, g) {
+  let s = srs[word] || { reps: 0, interval: 0, ease: 2.5, due: 0 };
+  if (g < 3) {
+    s.reps = 0;
+    s.interval = 0;
+    s.ease = Math.max(1.3, s.ease - 0.2);
+    s.due = now() + 60000; // again in ~1 min (this session)
+  } else {
+    s.reps += 1;
+    if (s.reps === 1) s.interval = 1;
+    else if (s.reps === 2) s.interval = 3;
+    else s.interval = Math.round(s.interval * s.ease);
+    if (g === 3) { s.ease = Math.max(1.3, s.ease - 0.15); s.interval = Math.max(1, Math.round(s.interval * 0.8)); }
+    if (g === 5) s.ease += 0.1;
+    s.due = now() + s.interval * DAY;
+  }
+  srs[word] = s;
+  localStorage.setItem(LS.srs, JSON.stringify(srs));
+}
+
+/* ---------- study flow ---------- */
+function buildQueue() {
+  const due = words.filter((w) => isDue(w.word));
+  const fresh = words.filter((w) => isNew(w.word));
+  queue = [...due, ...fresh];
+}
+function startStudy() {
+  buildQueue();
+  reviewed = 0;
+  if (queue.length === 0) return;
+  show("v-study");
+  nextCard();
+}
+function nextCard() {
+  // re-check "again" cards that have come due mid-session
+  if (queue.length === 0) {
+    const again = words.filter((w) => isDue(w.word));
+    if (again.length) queue = again;
+  }
+  if (queue.length === 0) {
+    $("done-count").textContent = reviewed;
+    show("v-done");
+    return;
+  }
+  current = queue.shift();
+  $("progress").textContent = queue.length + " remaining";
+  $("front-word").textContent = current.word;
+  $("back").hidden = true;
+  $("grades").hidden = true;
+  $("tap-hint").hidden = false;
+  renderBack(current);
+}
+function renderBack(w) {
+  const syns = (w.synonyms || []).join(", ");
+  const exs = (w.examples || []).map((e) => `<div class="ex">“${esc(e)}”</div>`).join("");
+  $("back").innerHTML =
+    `<div class="def">${esc(w.definition)}</div>` +
+    (syns ? `<div class="syn">≈ ${esc(syns)}</div>` : "") + exs +
+    `<div class="meta">added by ${esc(w.added_by || "?")} · ${esc(w.added_on || "")}</div>`;
+}
+function reveal() {
+  if (!$("back").hidden) return;
+  $("back").hidden = false;
+  $("grades").hidden = false;
+  $("tap-hint").hidden = true;
+}
+function grade(g) {
+  applyGrade(current.word, g);
+  reviewed++;
+  nextCard();
+}
+
+/* ---------- home / browse ---------- */
+function refreshStats() {
+  $("s-total").textContent = words.length;
+  $("s-due").textContent = words.filter((w) => isDue(w.word)).length;
+  $("s-new").textContent = words.filter((w) => isNew(w.word)).length;
+  const anything = words.some((w) => isDue(w.word) || isNew(w.word));
+  $("study-btn").textContent = anything ? "Study" : "Nothing due — come back later";
+}
+function renderBrowse() {
+  const q = ($("search").value || "").toLowerCase();
+  const list = words
+    .filter((w) => !q || w.word.toLowerCase().includes(q) || w.definition.toLowerCase().includes(q))
+    .slice()
+    .reverse(); // newest first
+  $("word-list").innerHTML = list
+    .map((w) => {
+      const s = cardState(w.word);
+      const pill = !s ? '<span class="pill">new</span>'
+        : s.due <= now() ? '<span class="pill">due</span>' : "";
+      return `<div class="word-item"><b>${esc(w.word)}${pill}</b>` +
+        `<small>${esc(w.definition)}</small></div>`;
+    })
+    .join("") || '<p class="hint">no matches</p>';
+}
+function esc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/* ---------- boot ---------- */
+async function init() {
+  srs = JSON.parse(localStorage.getItem(LS.srs) || "{}");
+  if (!localStorage.getItem(LS.key)) {
+    show("v-key");
+    return;
+  }
+  show("v-home");
+  const ok = await loadWords();
+  if (ok) refreshStats();
+}
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");
+init();
+</script>
+</body>
+</html>
