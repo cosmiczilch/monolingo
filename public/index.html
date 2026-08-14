@@ -102,8 +102,7 @@
       <div class="stat"><b id="s-due">–</b><span>due now</span></div>
       <div class="stat"><b id="s-new">–</b><span>new</span></div>
     </div>
-    <button onclick="startStudy()" id="study-btn">Study</button>
-    <button class="secondary" onclick="startStudy(5)" id="quick-btn" style="margin-top:8px">Quick exercise · 5 words</button>
+    <button onclick="startStudy()" id="quick-btn">Quick exercise · 5 words</button>
   </div>
   <button class="secondary" onclick="show('v-browse'); renderBrowse()">Browse all words</button>
 </div>
@@ -225,27 +224,32 @@ function applyGrade(word, g) {
 }
 
 /* ---------- study flow ---------- */
-function buildQueue() {
+function buildQueue(limit) {
   const due = words.filter((w) => isDue(w.word));
   const fresh = words.filter((w) => isNew(w.word));
-  queue = [...due, ...fresh];
+  queue = [...due, ...fresh].slice(0, limit);
+  // top up with random already-learned words so there's always a session
+  if (queue.length < limit) {
+    const filler = words.filter((w) => cardState(w.word) && !isDue(w.word));
+    shuffle(filler);
+    queue = queue.concat(filler.slice(0, limit - queue.length));
+  }
 }
-let sessionLimit = Infinity;
-function startStudy(limit) {
-  sessionLimit = limit || Infinity;
-  buildQueue();
-  queue = queue.slice(0, sessionLimit);
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+}
+const SESSION_SIZE = 5;
+function startStudy() {
+  buildQueue(SESSION_SIZE);
   reviewed = 0;
   if (queue.length === 0) return;
   show("v-study");
   nextCard();
 }
 function nextCard() {
-  // re-check "again" cards that have come due mid-session (full sessions only)
-  if (queue.length === 0 && sessionLimit === Infinity) {
-    const again = words.filter((w) => isDue(w.word));
-    if (again.length) queue = again;
-  }
   if (queue.length === 0) {
     $("done-count").textContent = reviewed;
     show("v-done");
@@ -284,9 +288,10 @@ function refreshStats() {
   $("s-total").textContent = words.length;
   $("s-due").textContent = words.filter((w) => isDue(w.word)).length;
   $("s-new").textContent = words.filter((w) => isNew(w.word)).length;
-  const anything = words.some((w) => isDue(w.word) || isNew(w.word));
-  $("study-btn").textContent = anything ? "Study" : "Nothing due — come back later";
-  $("quick-btn").hidden = !anything;
+  $("quick-btn").disabled = words.length === 0;
+  $("quick-btn").textContent = words.length === 0
+    ? "No words yet — add some via the bot"
+    : "Quick exercise · " + Math.min(SESSION_SIZE, words.length) + " words";
 }
 function renderBrowse() {
   const q = ($("search").value || "").toLowerCase();

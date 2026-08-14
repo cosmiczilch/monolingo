@@ -1,5 +1,5 @@
 // Monolingo service worker — network-first, cache fallback for offline use.
-const CACHE = "monolingo-v3";
+const CACHE = "monolingo-v4";
 const SHELL = ["/", "/manifest.json", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (e) => {
