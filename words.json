@@ -297,5 +297,20 @@
     ],
     "added_by": "Amrita",
     "added_on": "2026-08-15"
+  },
+  {
+    "word": "verbose",
+    "definition": "Using or containing more words than necessary; lengthy and wordy.",
+    "synonyms": [
+      "wordy",
+      "long-winded",
+      "garrulous"
+    ],
+    "examples": [
+      "His verbose writing style made the simple concept difficult to understand.",
+      "The instructions were too verbose and could have been explained more concisely."
+    ],
+    "added_by": "Amrita",
+    "added_on": "2026-08-15"
   }
 ]
