@@ -357,5 +357,20 @@
     ],
     "added_by": "Avi",
     "added_on": "2026-08-15"
+  },
+  {
+    "word": "provenance",
+    "definition": "The origin or source of something, particularly the documented history of ownership or authenticity of an object.",
+    "synonyms": [
+      "origin",
+      "source",
+      "lineage"
+    ],
+    "examples": [
+      "The painting's provenance was carefully traced back to a 17th-century Italian collection.",
+      "Without clear provenance, it's difficult to verify the authenticity of ancient artifacts."
+    ],
+    "added_by": "Avi",
+    "added_on": "2026-08-15"
   }
 ]
