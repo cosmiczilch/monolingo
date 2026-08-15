@@ -222,5 +222,20 @@
     ],
     "added_by": "Amrita",
     "added_on": "2026-08-15"
+  },
+  {
+    "word": "abrogate",
+    "definition": "To repeal, cancel, or do away with a law, right, or formal agreement.",
+    "synonyms": [
+      "repeal",
+      "revoke",
+      "abolish"
+    ],
+    "examples": [
+      "The new administration sought to abrogate the previous treaty.",
+      "The court decided to abrogate the outdated statute."
+    ],
+    "added_by": "Amrita",
+    "added_on": "2026-08-15"
   }
 ]
