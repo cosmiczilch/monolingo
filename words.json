@@ -402,5 +402,20 @@
     ],
     "added_by": "Avi",
     "added_on": "2026-08-20"
+  },
+  {
+    "word": "actuarially",
+    "definition": "In a manner relating to actuaries or the calculation of insurance risks, probabilities, and financial implications based on statistical data.",
+    "synonyms": [
+      "statistically",
+      "mathematically",
+      "probabilistically"
+    ],
+    "examples": [
+      "The pension fund was actuarially sound after the recent valuation.",
+      "Insurance premiums are actuarially determined based on risk assessment data."
+    ],
+    "added_by": "Avi",
+    "added_on": "2026-08-21"
   }
 ]
