@@ -612,5 +612,20 @@
     ],
     "added_by": "Avi",
     "added_on": "2026-09-30"
+  },
+  {
+    "word": "dirigible",
+    "definition": "A large, elongated aircraft filled with gas that is lighter than air, capable of being steered or directed in flight.",
+    "synonyms": [
+      "airship",
+      "blimp",
+      "zeppelin"
+    ],
+    "examples": [
+      "The dirigible floated majestically over the city during the parade.",
+      "Early aviation pioneers experimented with dirigibles before fixed-wing aircraft became dominant."
+    ],
+    "added_by": "Avi",
+    "added_on": "2026-10-01"
   }
 ]
