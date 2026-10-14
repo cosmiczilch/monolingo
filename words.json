@@ -687,5 +687,20 @@
     ],
     "added_by": "Amrita",
     "added_on": "2026-10-14"
+  },
+  {
+    "word": "preterite",
+    "definition": "A verb tense expressing a completed action or state in the past, used in many languages including Spanish and French.",
+    "synonyms": [
+      "past tense",
+      "simple past",
+      "aorist"
+    ],
+    "examples": [
+      "In Spanish, 'comí' is the preterite form meaning 'I ate'.",
+      "The preterite tense is used to describe actions that occurred at a specific point in time."
+    ],
+    "added_by": "Amrita",
+    "added_on": "2026-10-14"
   }
 ]
