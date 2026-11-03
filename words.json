@@ -717,5 +717,20 @@
     ],
     "added_by": "Amrita",
     "added_on": "2026-10-30"
+  },
+  {
+    "word": "glebe",
+    "definition": "Land belonging to a parish church or benefice, typically used to provide income for the clergyman.",
+    "synonyms": [
+      "church land",
+      "benefice land",
+      "parsonage land"
+    ],
+    "examples": [
+      "The vicar maintained several acres of glebe for agricultural purposes.",
+      "Medieval glebes were an essential source of income for rural clergymen."
+    ],
+    "added_by": "Amrita",
+    "added_on": "2026-11-03"
   }
 ]
