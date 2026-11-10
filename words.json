@@ -732,5 +732,20 @@
     ],
     "added_by": "Amrita",
     "added_on": "2026-11-03"
+  },
+  {
+    "word": "diegetic",
+    "definition": "relating to or denoting narrative elements that exist within the world of a story and are perceived by its characters.",
+    "synonyms": [
+      "intradiegetic",
+      "narrative",
+      "plot-level"
+    ],
+    "examples": [
+      "The diegetic sound of the car engine was heard by both the characters and the audience.",
+      "In the film, the character's thoughts are non-diegetic, while the doorbell ringing is diegetic."
+    ],
+    "added_by": "Avi",
+    "added_on": "2026-11-10"
   }
 ]
